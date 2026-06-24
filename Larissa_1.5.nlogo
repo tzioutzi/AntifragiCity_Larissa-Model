@@ -1,7 +1,7 @@
 ;;;;;**************** TRAFFIC MOVEMENT MODEL *********************;;;;
 ;;;;;                                                             ;;;;
 ;;;;; This model simulates a general evacuation scenario with     ;;;;
-;;;;; capability of adding destinations and                           ;;;;
+;;;;; capability of adding destinations and                       ;;;;
 ;;;;; simulating transportation network damage and road closures. ;;;;
 ;;;;; This model is developed by Alireza Mostafizi and under      ;;;;
 ;;;;; direct supervision of Dr. Haihzong Wang, Dr. Dan Cox, and   ;;;;
