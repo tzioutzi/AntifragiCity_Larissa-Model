@@ -1,0 +1,130 @@
+Larissa Flood-Resilience Mobility DSS
+WHAT IS IT?
+The Larissa Model is an agent-based Decision Support System pilot that studies and optimises household and resource-seeking mobility in the city of Larissa, Greece, under flood-driven infrastructure disruption. It is one of three primary case studies (alongside Thessaloniki/AHEPA and Bratislava) developed within the AntifragiCity project as the empirical workhorse of Deliverable D3.4 — Mobility Triage Analysis DSS.
+The model serves three purposes:
+Capture the multimodal network of Larissa, including a directed road and bus network extracted from OpenStreetMap and geolocated with QGIS version 3.40 for maximum accuracy, modelled as interconnected stationary agents (intersections and bus stops) joined by directed links.
+Integrate socioeconomic land-use data and trip attractors, with static patches carrying population density and the distribution of socioeconomic profiles, while the georeferenced locations of commercial stores and public services are integrated as static agents acting as trip attractors.
+Quantify flood-driven household-level impacts on the routing logic by integrating flood severity with the routing rules, identifying specific resource access barriers that emerge during flood events . The flood severity is a user-defined parameter while the flood-prone area is mapped from historical ESA flood data.
+Among the three primary DSS pilots, Larissa is the operationally-stressed case study: its hazard-driven household-level impacts and resource-seeking trip context (both routine and emergency) require the DSS to handle disruption typologies that operate very differently from AHEPA's patient-access and Bratislava's river-crossing commute.
+HOW IT WORKS
+The semantic ontology of the Larissa model (Figure 5.15 in ) is a multimodal, hydrology-aware agent-based system in which multimodal network edges are represented as directed links, nodes are represented as stationary agents, dynamic agents navigate according to their selected mode, and socioeconomic data are encoded in static patches 
+1. The Multimodal Network Underlay
+The agent-based model incorporates a georeferenced, directed road and bus network for Larissa, derived from OpenStreetMap data and processed using QGIS 3.40 . The two networks are modelled as interconnected stationary agents — nodes represent intersections and bus stops, while the links represent the edges of the transportation corridors . Integration with historical ESA flood data is used to map the flood-prone area that constrains the routing logic.
+2. The Agents
+The ontology distinguishes three dynamic agent populations and three static-agent structures 
+Agent type	Role in the model
+Pedestrians	Dynamic agents that select routes to their destinations based on the distance from their origin and prevailing preferences. They may either walk to their destination or transition into car passengers or bus commuters, navigating through their selected network to reach their destination through the shortest path.
+
+Cars & Buses	Dynamic autonomous agents that travel along the relevant network's shortest path.
+
+Stops & Intersections	Stationary agents acting as both node-access points and directed-graph landmarks.
+
+Commercial Stores & Public Services	Static agents serving as destinations that attract daily commuter inflows and resource-seeking trips from households across the city 
+
+Patches	Static patches carrying the spatial distribution of population density and socioeconomic profiles, used to determine traveller origins, simulate modal selection and classify vulnerable population groups.
+
+Vulnerability is propagated from the patch-level income profile and attached to the agent; travellers with an income lower than half the population average are classified as vulnerable (the same threshold used across pilots).
+3. Behavioural Rules
+Pedestrians select routes based on origin–destination distance and prevailing preferences, and may either walk directly or transition into car passengers or bus commuters by joining the relevant directed network and traversing it via shortest path.
+Cars and buses navigate the road and bus networks respectively, subject to acceleration, deceleration, maximum-speed and selected-modal-share constraints.
+Mobility dynamics are coupled to a progressive road-inundation rule: as flood severity rises, the routing layer treats flooded road segments as unavailable, effectively shrinking the reachable graph per tick and identifying specific resource access barriers that emerge during flood events.
+Modal-share redistribution under R2 is implemented as a hard rule: 50% of the population are not using any automobile transport modes for work-related or resource-seeking activities.
+4. KPI Computation
+The model exports the KPIs defined in Deliverable D2.3 :
+KPI	Measures
+Trip ends (general)	Total completed trips of the general population 
+
+Trip ends (vulnerable)	Completed trips of the vulnerable population subgroup 
+
+Throughput (M)	Trip-level outcome per unit time 
+
+Efficiency (S)	System performance under stress 
+
+Redundancy (R)	Availability of alternative pathways (topological and modal) 
+
+Entropy (Q)	Satisfaction/psychological stress level 
+
+Theil-T index	Socioeconomic inequity measure, drawn from the Theil literature 
+
+The UI also incorporates plots to monitor the spatiotemporal evolution of these serviceability aspects .
+5. Disruption Scenarios
+The Larissa case study focuses on flood-related disruptions to investigate the household-level inundation impacts into the routing logic The model is configured to operate at the water-height range 1 cm – 1 m of progressive road inundation . Once the inundation layer collapses the lower-lying edges, the routing engine reroutes via the remaining high-elevation edges of the multimodal graph.
+6. Response Strategies
+Three traffic-regulation strategies reconfigure the spatial distribution of traveller destinations and demand levels while ensuring the network retains the capacity to cope with emergency events:
+R1 — Alternative destinations in strict perimeter: asks the population to find alternative destinations within a strict perimeter from their origin point. R1 effectively simulates a polycentric urban structure and restricts agent movement to localised hubs, mitigating the risk of congestion on primary corridors while ensuring continued access to essential services within reduced radii.
+R2 — Remote-work reduction of automobile demand: simulates administrative recommendations aimed at reducing travel and promoting remote work; 50% of the population are not using any automobile transport modes for work-related or resource-seeking activities, effectively dampening the immediate demand surge on the transportation network during crisis intervals.
+R3 — Bus-lane prioritization: focuses on modal shift towards the bus network, keeping the same routes but increasing bus capacity. The model therefore simulates the prioritisation of public transit corridors, whereby designated lanes remain operational even when surrounding road segments are compromised by floodwaters.
+HOW TO USE IT
+The UI of the Larissa model (Figure 5.16) combines user-defined inputs with live outputs and plots.
+Input Controls
+Modal-share chooser / sliders — distribution among pedestrians, cars and buses.
+Pedestrian speed — user-defined walking speed.
+Car speed — user-defined car speed.
+Traffic flow metrics — acceleration and deceleration constraints operate the vehicles' kinematic envelope in the same way as in the other pilots.
+Flood severity — user-defined inundation parameter; the flood-prone area is mapped from historical ESA flood data and used as a patch-level overlay that progressively discounts flooded road segments 
+Response selector — toggle do-nothing, R1 (alternative destinations), R2 (remote-work reduction) or R3 (bus-lane prioritization).
+Output Monitors & Plots
+Trip ends (general) readouts and time-series plots.
+Trip ends (vulnerable) readouts and time-series plots — the equity-aware throughput channel.
+KPI dashboard — Throughput (M), Efficiency (S), Redundancy (R), Entropy (Q) and Theil-T.
+Spatiotemporal serviceability plots — illustrate how flood-driven topology changes propagate through the multimodal graph.
+Running a Trial
+Open the UI and choose a modal split.
+Set the pedestrian and car speeds and the traffic-flow metrics (acceleration / deceleration).
+Trigger a flood severity event — the historical flood-prone area will be progressively activated up to a user-defined inundation depth.
+Run a do-nothing baseline and capture throughput, vulnerable trip-ends, and the Theil-T outputs 
+Activate R1 and re-run; observe that throughput falls to 26.467 but equity disparity drops by −43.96% (Table 5.6).
+Activate R2 and observe the throughput peak (0.227) but the −50.389 redundancy collapse and the larger drop in trip-ends for the general population.
+Activate R3 and observe that trip ends fall less for vulnerable users than under R1 (−14.49% vs. −12.04%, but with higher general-population correctness and stronger redundancy recovery) and the Theil-T reduction of −33.81% 
+Abort the response and re-run with progressive flood severity to study the non-linear degradation in travel efficiency.
+THINGS TO NOTICE
+Non-linear degradation in travel efficiency as flood severity rises. The degradation exhibits local peaks and inconsistent trends: some districts lose their routes earlier than others, and the vulnerable-group penalty is consistently larger than the general-population penalty.
+The vulnerable population is consistently more affected, experiencing an average reduction of 13.51% compared with an average reduction of 11.58% for the general population 
+The equity-efficiency trade-off is structural. Across the pilots, throughput-oriented and equity-oriented KPIs are not co-monotone: in Larissa, R2 maximises aggregate efficiency yet degrades vulnerable-specific serviceability 
+R1's signature. While R1 lowers the general trip-end count to 26.467 (−11.56%) and vulnerable trip-ends to 0.626 (−12.04%), it delivers by far the largest equity-disparity reduction from the very first deployment phase, with a Theil-T drop of −43.96% The takeaway is that decentralised movement strategies prioritize spatial equity by minimizing the reliance on vulnerable primary transit arteries.
+R2's signature. R2 lifts aggregate throughput to 0.227 (+8.71%) and produces a 3.21% increase in vulnerable-specific trip ends, but its redundancy collapses from −1.934 to −50.389 — the lowest in the family and a warning that the system's redundancy is not adequately increased and thus entropy levels remain high.
+
+R3's signature. R3 delivers the most balanced trade-off, with reductions of −15.77% / −14.49% on trip ends (general/vulnerable), a throughput lift of +7.61%, redundancy recovery of +7.23%, and −33.81% on Theil-T .3 is the most effective response for the maintenance of the serviceability levels of all the population, providing a robust transit backbone that remains resilient even as private-mode availability contracts.
+Equity-aware discrimination. The simultaneous tracking of efficiency, redundancy, entropy and social disparity under the same stressor reveals structural relationships — e.g., instances where efficiency is more degraded than the corresponding redundancy — that would not arise from an incorrectly specified model.
+Topological sensitivity. Districts surrounding the riverbanks are particularly affected because the routing layer treats flooded road segments as unavailable, shrinking the reachable graph per tick.
+
+THINGS TO TRY
+Sweep the flood-severity slider from low to high and watch how trip ends (general and vulnerable) and Theil-T evolve — the key quantitative gradient is the 13.51% vs. 11.58% average reduction.
+Use the modal-split chooser to increase the bus share and observe that R3 immediately starts paying off in vulnerable trip-end recovery.
+Stride the response selector from Do-Nothing → R1 → R2 → R3 under the same flood severity and compare the four rows of Table 5.6 (29.926, 26.467, 24.807, 25.205 in trip ends general).
+Toggle a pedestrian speed below the bus-characteristic cruise speed and observe whether trip ends (general) materially change; the pedestrian-to-bus transition is short-circuit gain on bus ridership.
+Combine selection-delay friction with low R2 share and observe that the throughput peak stays the same while vulnerable trip ends fall — this reproduces the flood-disturbance amplification mode seen in similar pilots 
+Increase R1's strict-perimeter radius slowly and observe whether trip ends (general) climb back toward the do-nothing baseline while preserving the Theil-T reduction signature.
+Run R3 with progressive flood severity and watch R3 stay the most effective response for the maintenance of the serviceability levels of all of the population even at full inundation.
+Snapshot only the first ten minutes of the forecast horizon — this operational horizon is the predictive-capacity signature used across the simulations.
+EXTENDING THE MODEL
+(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
+These extensions build directly on the documented structure and limitations of the Larissa pilot 
+Vulnerability-driven origin allocation. Replace uniform random origins with a vulnerability-weighted sampling so that the 13.51% / 11.58% penalty can be tested against skewed distributions (e.g., a Pareto tail) rather than the current implicit uniform distribution.
+Resource-stock granularity. Currently commercial stores and public services act as static agents . Add capacity variables (e.g., inventory or service slots) and let the routing layer coalesce around stocked nodes, giving the model a true resource-allocation dimension rather than a reach-only calculation.
+Household composition as a separate agent breed. Split agents into household_parents and household_dependents per origin patch to give the model a household-level resolution that matches the headline framing of the pilot.
+Mode-switching mid-trip. Currently agents can transition pedestrian → car/bus at the moment of trip creation . Allow mid-trip transitions (e.g., car → pedestrian once a corridor is flooded), reproducing the R3-bus-lane logic more explicitly.
+Time-of-day vulnerability layer. Calibrate a morning-vs-evening vulnerability exposure to model how household trip endpoints (school runs, work commute) amplify the equity penalty during the same flood severity.
+
+Histogram bin for flood severity. Currently flood severity is one user-defined parameter . Replace it with a multi-bin stochastic draw from the historical ESA flood records so that local peaks and inconsistent trends are produced endogenously rather than only detected empirically.
+Stochastic perimeter for R1. R1 currently uses a strict perimeter . Add a configurable-perimeter variance so that polycentric urban-structure simulations can be tested against multiple radius thresholds.
+Origin-aware Theil-T decomposition. Currently Theil-T is reported as an aggregate . Add origin-patch-level decomposition so that the 43.96% reduction under R1 can be attributed to specific income cohorts rather than being a city-wide average.
+Speed-saturation cap. Pedestrians and cars both have user-defined speeds . Add a saturation cap on the modal-share slider so that R2's 50% auto-mode reduction can be tested as a continuous parameter rather than a discrete value.
+NETLOGO FEATURES
+Multi-modal directed graph via per-mode agents. Cars and buses each use their own network (road and bus respectively), implemented as directed links plus stationary node agents . NetLogo's network extension is reused with a dedicated breed per mode so that shortest-path queries are mode-aware at runtime.
+Stationary agent breeds for intersections and bus stops. Each node on the multimodal graph is a stationary agent that holds both the topological and the flooding state, which means a single node can carry both road and bus semantics.
+patches-encoded socioeconomic layer. Population density and the distribution of socioeconomic profiles are stored as static patches . This avoids encoding a possibly large secondary agent breed and keeps the global state cacheable for fast stochastic sampling.
+Patch-to-agent income-down at birth. When a traveller is born, the patch's socioeconomic profile is sampled (normal distribution) and assigned as the agent's income variable; vulnerability is income < 0.5 × population-average, pre-computed against the patch and stored on it for fast lookup.
+random-normal for socio-economic sampling. Income and modal-choice variables all draw from a normal distribution, matching the stochastic semantics of mobility-choice distortion during disturbances.
+Composite response procedure. The R1/R2/R3 invocations are routed through a single apply-response reporter that internally branches on (i) the active alternative-destination perimeter, (ii) the active auto-mode share, and (iii) the bus-capacity multiplier  — the same low-code composite used by the Bratislava pilot, adapted to Larissa's three regulations.
+view-updates-driven KPI plot panel. Throughput, vulnerable trip ends, Efficiency, Redundancy, Entropy and Theil-T are rendered through one plot that aggregates multiple time-series  a clean workaround to display a high-dimensional KPI panel without cluttering the interface.
+Flood-overlay via patch-state flood-depth. Patches inside the flood-prone polygon carry a flood-depth value referenced at every tick; the routing engine simply discards any link whose two endpoints fall on flooded patches . This patch-level update is a clean reuse of NetLogo's spatial primitives rather than maintaining a parallel hydrology data structure.
+Snapshot horizon. A single ticks = 600 constant in the go procedure produces a 10-minute forecast horizon for KPI capture , the same operational logic used by the Bratislava pilot.
+RELATED MODELS
+The Larissa pilot is one of three primary case studies developed under the umbrella DSS framework of D3.4, and its ontology was crafted to be compatible with the other pilots 
+AHEPA Hospital model — Same DSS framework but focused on patient-access to the AHEPA tertiary hospital in Thessaloniki
+Bratislava model — Same DSS framework but oriented around multimodal commuting across the two riverbanks of the Danube.
+Odessa model — A sibling evacuation case study.
+CREDITS AND REFERENCES
+Source deliverable: Tzioutziou, A., Tsami, M., Xenidis, Y., et al. D3.4 Mobility Triage Analysis DSS. AntifragiCity Project, 2026. Section 5.3.3 — Larissa, inclusive of subsections 5.3.3.1 Model Development,.3.3.2 Definition of Parameters and Scenarios, and 5.3.3.3 Simulations' Results.
+OpenStreetMap — Source of the road and bus networks.
